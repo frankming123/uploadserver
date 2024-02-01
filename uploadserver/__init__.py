@@ -139,7 +139,7 @@ def receive_upload(handler):
             filename = None
         
         if filename:
-            destination = pathlib.Path(args.directory) / filename
+            destination = pathlib.Path(args.directory).joinpath(handler.path.lstrip('/').rstrip('/upload')) / filename
             if os.path.exists(destination):
                 if args.allow_replace and os.path.isfile(destination):
                     os.remove(destination)
@@ -246,7 +246,7 @@ class SimpleHTTPRequestHandler(ListDirectoryInterception,
     def do_GET(self):
         if not check_http_authentication(self): return
         
-        if self.path == '/upload':
+        if self.path.endswith('/upload'):
             send_upload_page(self)
         else:
             super().do_GET()
@@ -254,7 +254,7 @@ class SimpleHTTPRequestHandler(ListDirectoryInterception,
     def do_POST(self):
         if not check_http_authentication(self): return
         
-        if self.path == '/upload':
+        if self.path.endswith('/upload'):
             result = receive_upload(self)
             
             if result[0] < http.HTTPStatus.BAD_REQUEST:
@@ -274,7 +274,7 @@ class CGIHTTPRequestHandler(ListDirectoryInterception,
     def do_GET(self):
         if not check_http_authentication(self): return
         
-        if self.path == '/upload':
+        if self.path.endswith('/upload'):
             send_upload_page(self)
         else:
             super().do_GET()
@@ -282,7 +282,7 @@ class CGIHTTPRequestHandler(ListDirectoryInterception,
     def do_POST(self):
         if not check_http_authentication(self): return
         
-        if self.path == '/upload':
+        if self.path.endswith('/upload'):
             result = receive_upload(self)
             
             if result[0] < http.HTTPStatus.BAD_REQUEST:
